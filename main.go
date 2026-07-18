@@ -25,36 +25,36 @@ type Rule struct {
 
 // Issue represents a linting issue found in a Makefile
 type Issue struct {
-	RuleID    string `json:"rule_id"`
-	Line      int    `json:"line"`
-	Column    int    `json:"column"`
-	Severity  string `json:"severity"`
-	Message   string `json:"message"`
+	RuleID     string `json:"rule_id"`
+	Line       int    `json:"line"`
+	Column     int    `json:"column"`
+	Severity   string `json:"severity"`
+	Message    string `json:"message"`
 	Suggestion string `json:"suggestion,omitempty"`
 }
 
 // Target represents a Makefile target
 type Target struct {
-	Name      string   `json:"name"`
-	Line      int      `json:"line"`
+	Name         string   `json:"name"`
+	Line         int      `json:"line"`
 	Dependencies []string `json:"dependencies"`
-	Commands  []string `json:"commands"`
-	IsPhony   bool     `json:"is_phony"`
-	IsPattern bool     `json:"is_pattern"`
+	Commands     []string `json:"commands"`
+	IsPhony      bool     `json:"is_phony"`
+	IsPattern    bool     `json:"is_pattern"`
 }
 
 // AnalysisResult represents the complete analysis of a Makefile
 type AnalysisResult struct {
-	File      string   `json:"file"`
-	Targets   []Target `json:"targets"`
-	Issues    []Issue  `json:"issues"`
-	Score     float64  `json:"score"`
-	Grade     string   `json:"grade"`
-	RuleCount int      `json:"rule_count"`
-	IssueCount int    `json:"issue_count"`
+	File       string   `json:"file"`
+	Targets    []Target `json:"targets"`
+	Issues     []Issue  `json:"issues"`
+	Score      float64  `json:"score"`
+	Grade      string   `json:"grade"`
+	RuleCount  int      `json:"rule_count"`
+	IssueCount int      `json:"issue_count"`
 	ErrorCount int      `json:"error_count"`
-	WarnCount  int     `json:"warn_count"`
-	InfoCount  int     `json:"info_count"`
+	WarnCount  int      `json:"warn_count"`
+	InfoCount  int      `json:"info_count"`
 }
 
 var rules = []Rule{
@@ -188,10 +188,10 @@ func analyzeFile(filename string) AnalysisResult {
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		result.Issues = append(result.Issues, Issue{
-			RuleID:  "ML000",
-			Line:    0,
+			RuleID:   "ML000",
+			Line:     0,
 			Severity: "error",
-			Message: fmt.Sprintf("Failed to read file: %v", err),
+			Message:  fmt.Sprintf("Failed to read file: %v", err),
 		})
 		return result
 	}
@@ -305,40 +305,40 @@ func analyzeFile(filename string) AnalysisResult {
 			// Check for rm -rf
 			if strings.Contains(cmd, "rm -rf") || strings.Contains(cmd, "rm -fr") {
 				result.Issues = append(result.Issues, Issue{
-					RuleID:   "ML010",
-					Line:     lineNum,
-					Severity: "warning",
-					Message:  "Dangerous 'rm -rf' command detected",
+					RuleID:     "ML010",
+					Line:       lineNum,
+					Severity:   "warning",
+					Message:    "Dangerous 'rm -rf' command detected",
 					Suggestion: "Consider using 'rm -f' with explicit file lists or a cleanup directory",
 				})
 			}
 			// Check for silent commands
 			if strings.HasPrefix(cmd, "@") {
 				result.Issues = append(result.Issues, Issue{
-					RuleID:   "ML006",
-					Line:     lineNum,
-					Severity: "info",
-					Message:  "Silent command (prefixed with @)",
+					RuleID:     "ML006",
+					Line:       lineNum,
+					Severity:   "info",
+					Message:    "Silent command (prefixed with @)",
 					Suggestion: "Remove @ prefix if you want to see commands in output",
 				})
 			}
 			// Check for hardcoded paths
 			if rePath := regexp.MustCompile(`(?:^|\s)/[a-z][a-z0-9_/.-]+`); rePath.MatchString(cmd) {
 				result.Issues = append(result.Issues, Issue{
-					RuleID:   "ML004",
-					Line:     lineNum,
-					Severity: "info",
-					Message:  "Hardcoded absolute path detected",
+					RuleID:     "ML004",
+					Line:       lineNum,
+					Severity:   "info",
+					Message:    "Hardcoded absolute path detected",
 					Suggestion: "Use variables like $(PREFIX) or $(DESTDIR) for portability",
 				})
 			}
 			// Check for recursive make
 			if strings.Contains(cmd, "$(MAKE)") || strings.Contains(cmd, "$(MAKE) ") {
 				result.Issues = append(result.Issues, Issue{
-					RuleID:   "ML007",
-					Line:     lineNum,
-					Severity: "warning",
-					Message:  "Recursive make call detected",
+					RuleID:     "ML007",
+					Line:       lineNum,
+					Severity:   "warning",
+					Message:    "Recursive make call detected",
 					Suggestion: "Consider using .WAIT or restructuring to avoid recursive make",
 				})
 			}
@@ -400,10 +400,10 @@ func analyzeFile(filename string) AnalysisResult {
 		if !t.IsPhony && !t.IsPattern && !strings.Contains(t.Name, ".") {
 			if phonyTargets[t.Name] {
 				result.Issues = append(result.Issues, Issue{
-					RuleID:    "ML001",
-					Line:      t.Line,
-					Severity:  "warning",
-					Message:   fmt.Sprintf("Target '%s' should be declared .PHONY", t.Name),
+					RuleID:     "ML001",
+					Line:       t.Line,
+					Severity:   "warning",
+					Message:    fmt.Sprintf("Target '%s' should be declared .PHONY", t.Name),
 					Suggestion: "Add '.PHONY: " + t.Name + "' to the Makefile",
 				})
 			}
@@ -413,10 +413,10 @@ func analyzeFile(filename string) AnalysisResult {
 	// ML005: Check for .DEFAULT_GOAL
 	if !hasDefaultGoal {
 		result.Issues = append(result.Issues, Issue{
-			RuleID:   "ML005",
-			Line:     0,
-			Severity: "info",
-			Message:  "No .DEFAULT_GOAL specified",
+			RuleID:     "ML005",
+			Line:       0,
+			Severity:   "info",
+			Message:    "No .DEFAULT_GOAL specified",
 			Suggestion: "Add '.DEFAULT_GOAL := all' to set a default target",
 		})
 	}
@@ -424,10 +424,10 @@ func analyzeFile(filename string) AnalysisResult {
 	// ML011: Check for clean target
 	if !hasCleanTarget {
 		result.Issues = append(result.Issues, Issue{
-			RuleID:   "ML011",
-			Line:     0,
-			Severity: "info",
-			Message:  "No clean target found",
+			RuleID:     "ML011",
+			Line:       0,
+			Severity:   "info",
+			Message:    "No clean target found",
 			Suggestion: "Add a 'clean' target to remove build artifacts",
 		})
 	}
@@ -435,10 +435,10 @@ func analyzeFile(filename string) AnalysisResult {
 	// ML012: Check for install target
 	if !hasInstallTarget {
 		result.Issues = append(result.Issues, Issue{
-			RuleID:   "ML012",
-			Line:     0,
-			Severity: "info",
-			Message:  "No install target found",
+			RuleID:     "ML012",
+			Line:       0,
+			Severity:   "info",
+			Message:    "No install target found",
 			Suggestion: "Consider adding an 'install' target for library projects",
 		})
 	}
@@ -446,10 +446,10 @@ func analyzeFile(filename string) AnalysisResult {
 	// ML015: Check for shebang/header
 	if !hasShebang && len(lines) > 0 && !strings.HasPrefix(strings.TrimSpace(lines[0]), "#") {
 		result.Issues = append(result.Issues, Issue{
-			RuleID:   "ML015",
-			Line:     0,
-			Severity: "info",
-			Message:  "No comment header at top of Makefile",
+			RuleID:     "ML015",
+			Line:       0,
+			Severity:   "info",
+			Message:    "No comment header at top of Makefile",
 			Suggestion: "Add a comment explaining the purpose of this Makefile",
 		})
 	}
@@ -466,10 +466,10 @@ func analyzeFile(filename string) AnalysisResult {
 		}
 		if hasPatternRules {
 			result.Issues = append(result.Issues, Issue{
-				RuleID:   "ML009",
-				Line:     0,
-				Severity: "info",
-				Message:  "Pattern rules exist but no .SUFFIXES declaration",
+				RuleID:     "ML009",
+				Line:       0,
+				Severity:   "info",
+				Message:    "Pattern rules exist but no .SUFFIXES declaration",
 				Suggestion: "Add '.SUFFIXES' to define supported file extensions",
 			})
 		}

@@ -106,11 +106,11 @@ func TestAnalysisResultStruct(t *testing.T) {
 
 func TestTargetStruct(t *testing.T) {
 	target := Target{
-		Name:       "test",
-		Line:       10,
+		Name:         "test",
+		Line:         10,
 		Dependencies: []string{"all"},
-		Commands:   []string{"@echo test"},
-		IsPhony:    true,
+		Commands:     []string{"@echo test"},
+		IsPhony:      true,
 	}
 	if target.Name != "test" {
 		t.Errorf("expected Name test, got %s", target.Name)
